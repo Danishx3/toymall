@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>ToyMall Admin | Command Center</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-rocket"><i class="fas fa-rocket"></i></div>
+    </div>
+    <script>
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('pageLoader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 500);
+        });
+    </script>
+
+    <!-- Auth Guard -->
+    <div id="loginOverlay" class="modal-overlay" style="display: flex; z-index: 3000;">
+        <div class="modal-content admin-login-card" style="width: min(400px, 100%); text-align: center;">
+            <div class="logo admin-brand" style="justify-content: center; margin-bottom: 1.5rem;">
+                <i class="fas fa-rocket"></i> Toy<span>Mall</span>
+            </div>
+            <h3 style="margin-bottom: 0.35rem; font-family: 'Fredoka One', cursive; color: var(--primary);">Admin HQ</h3>
+            <p style="color: #64748b; margin-bottom: 1.5rem; font-size: 0.95rem;">Sign in to manage toys &amp; orders</p>
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <input type="email" id="adminEmail" placeholder="Admin Email" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="adminPass" placeholder="Admin Password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="add-btn" id="adminLoginBtn" style="width: 100%;">
+                    <span id="adminBtnText">Sign In</span>
+                    <span id="adminBtnLoader" class="d-none"><i class="fas fa-circle-notch fa-spin"></i> Checking HQ...</span>
+                </button>
+            </form>
+            <div id="adminLoginMessage" class="alert d-none" style="margin-top:1rem; border-radius:10px; font-weight:600; font-size:0.9rem;"></div>
+        </div>
+    </div>
+
+    <div class="admin-sidebar-overlay" id="adminSidebarOverlay" aria-hidden="true"></div>
+
+    <header class="admin-topbar">
+        <button type="button" class="admin-menu-btn" id="adminMenuBtn" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+        <span class="admin-topbar-title admin-brand"><i class="fas fa-crown" style="color: var(--admin-sun);"></i> ToyMall HQ</span>
+        <a href="index.html" class="admin-store-link" title="View shop"><i class="fas fa-store"></i></a>
+    </header>
+
+    <div class="admin-shell">
+        <aside class="sidebar">
+            <div class="logo admin-brand" style="color: #fff; margin-bottom: 2rem;">
+                <i class="fas fa-rocket"></i> Toy<span>Mall</span>
+            </div>
+            <div class="nav-item active" data-view="products" onclick="showView('products')">
+                <i class="fas fa-cube"></i> Products
+            </div>
+            <div class="nav-item" data-view="offers" onclick="showView('offers')">
+                <i class="fas fa-bullhorn"></i> Promo banners
+            </div>
+            <div class="nav-item" data-view="bookings" onclick="showView('bookings')">
+                <i class="fas fa-receipt"></i> Orders
+            </div>
+            <div style="margin-top: auto;">
+                <div class="nav-item" onclick="logout()" style="color: #fca5a5;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div id="view-products">
+                <div class="admin-page-head">
+                    <h1>Toy Inventory</h1>
+                    <button class="nav-btn primary" onclick="openAddModal()"><i class="fas fa-plus"></i> Add Toy</button>
+                </div>
+                <div class="card">
+                    <div class="table-scroll">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Toy Detail</th>
+                                    <th>Stock</th>
+                                    <th>Price</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminProductTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-offers" style="display: none;">
+                <div class="admin-page-head">
+                    <h1>Promo banners</h1>
+                    <button type="button" class="nav-btn primary" onclick="openOfferModal()"><i class="fas fa-plus"></i> Add banner</button>
+                </div>
+                <p class="admin-hint">Homepage carousel (Hamleys-style). Each banner links to one product; shoppers see that toy’s details and more toys in the same category.</p>
+                <div class="card">
+                    <div class="table-scroll">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Banner</th>
+                                    <th>Linked product</th>
+                                    <th>Sort</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminOffersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-bookings" style="display: none;">
+                <div class="admin-page-head">
+                    <h1>Customer Orders</h1>
+                </div>
+                <!-- Order Search -->
+                <div style="margin-bottom:1.25rem;">
+                    <div style="display:flex;gap:0.75rem;align-items:center;background:#fff;border-radius:14px;padding:0.6rem 1rem;box-shadow:0 2px 12px rgba(0,0,0,0.07);border:1.5px solid #e2e8f0;max-width:460px;">
+                        <i class="fas fa-search" style="color:#94a3b8;font-size:1rem;"></i>
+                        <input id="orderSearchInput" type="text" placeholder="Search by Order ID (e.g. TM-ABC123) or name…"
+                            style="border:none;outline:none;width:100%;font-size:0.95rem;font-weight:600;background:transparent;color:#1e293b;"
+                            oninput="filterAdminOrders(this.value)">
+                        <button onclick="filterAdminOrders('');document.getElementById('orderSearchInput').value='';"
+                            style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:0.9rem;" title="Clear"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="table-scroll">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID &amp; Customer</th>
+                                    <th>Items &amp; Total</th>
+                                    <th>Current Status</th>
+                                    <th>Management</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminBookingTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal-overlay" style="z-index: 2500;">
+        <div class="modal-content">
+            <i class="fas fa-times modal-close" onclick="closeProductModal()"></i>
+            <h2 id="modalTitle" style="font-family: 'Fredoka One', cursive; color: var(--primary);">Edit Toy</h2>
+            <br>
+            <form id="productForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label>Toy Name</label>
+                    <input type="text" id="pName" placeholder="Flying Rocket Plush" required>
+                </div>
+                <div class="product-form-grid">
+                    <div class="form-group">
+                        <label>Price (₹)</label>
+                        <input type="number" id="pPrice" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Original (₹)</label>
+                        <input type="number" id="pOldPrice">
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Qty</label>
+                        <input type="number" id="pQuantity" placeholder="100" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Product Images (Multiple allowed)</label>
+                    <input type="file" id="pImage" accept="image/*" multiple>
+                    <div id="existingImages" class="image-preview-grid"></div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="pDesc" rows="3"></textarea>
+                </div>
+                <div class="product-form-grid product-form-grid--meta">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="pCategory" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select id="pGender" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Age group</label>
+                        <select id="pAge"></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Pin to Special Offers?</label>
+                    <select id="pIsPinned">
+                        <option value="false">No</option>
+                        <option value="true">Yes (Special Offer)</option>
+                    </select>
+                </div>
+                <button type="submit" class="add-btn" id="saveProductBtn">Save Toy Details</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Offer / banner modal -->
+    <div id="offerModal" class="modal-overlay" style="display: none; z-index: 2600;">
+        <div class="modal-content admin-offer-modal">
+            <i class="fas fa-times modal-close" onclick="closeOfferModal()"></i>
+            <h2 id="offerModalTitle" style="font-family: 'Fredoka One', cursive; color: var(--primary);">Add promo banner</h2>
+            <form id="offerForm">
+                <input type="hidden" id="offerEditId">
+                <div class="form-group">
+                    <label>Banner title</label>
+                    <input type="text" id="offerTitle" placeholder="UP TO 50% OFF" required>
+                </div>
+                <div class="form-group">
+                    <label>Subtitle</label>
+                    <input type="text" id="offerSubtitle" placeholder="On selected RC cars — tap to shop!">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Title Color</label>
+                        <input type="color" id="offerTitleColor" value="#f70404" style="height: 50px; padding: 5px;">
+                    </div>
+                    <div class="form-group">
+                        <label>Subtitle Color</label>
+                        <input type="color" id="offerSubtitleColor" value="#475569" style="height: 50px; padding: 5px;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Link to product</label>
+                    <select id="offerProductId" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Banner image</label>
+                    <input type="file" id="offerImage" accept="image/*">
+                    <div id="offerImagePreviewPanel" class="banner-preview-box"></div>
+                    <small class="admin-field-hint">Wide image works best (e.g. 1200×500). Required for new banners.</small>
+                </div>
+                <div class="form-group">
+                    <label>Sort order (lower = first)</label>
+                    <input type="number" id="offerSort" value="0" step="1">
+                </div>
+                <button type="submit" class="add-btn" id="saveOfferBtn">Save banner</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <script src="js/secrets.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/catalog-meta.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
