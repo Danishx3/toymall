@@ -1372,6 +1372,27 @@ function updateSliderPosition() {
     });
 }
 
+// --- Image Swipe Logic --- //
+let touchStartX = 0;
+let touchEndX = 0;
+const toySliderElement = document.getElementById('toySlider');
+
+if (toySliderElement) {
+    toySliderElement.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    toySliderElement.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        if (touchEndX < touchStartX - 40) {
+            moveSlider(1); // Swiped left -> Next
+        }
+        if (touchEndX > touchStartX + 40) {
+            moveSlider(-1); // Swiped right -> Previous
+        }
+    }, { passive: true });
+}
+
 function openCart() {
     cartDrawer.classList.add('is-open');
     if (cartBackdrop) {
@@ -1388,4 +1409,59 @@ function closeCart() {
         cartBackdrop.setAttribute('aria-hidden', 'true');
     }
     document.body.style.overflow = '';
+}
+
+// --- Guest User Local Storage Persistence ---
+function saveGuestDetails() {
+    const data = {
+        name: document.getElementById('guestName')?.value || '',
+        phone: document.getElementById('guestPhone')?.value || '',
+        mode: typeof purchaseMode !== 'undefined' ? purchaseMode : 'delivery',
+        shipping: {
+            pin: document.getElementById('shipPincode')?.value || '',
+            state: document.getElementById('shipState')?.value || '',
+            dist: document.getElementById('shipDistrict')?.value || '',
+            city: document.getElementById('shipCity')?.value || '',
+            building: document.getElementById('shipHouseName')?.value || '',
+            house: document.getElementById('shipHouseNum')?.value || ''
+        }
+    };
+    localStorage.setItem('toymall_guest_user', JSON.stringify(data));
+}
+
+function initGuestStorage() {
+    try {
+        const stored = localStorage.getItem('toymall_guest_user');
+        if (stored) {
+            const data = JSON.parse(stored);
+            if (data.name && document.getElementById('guestName')) document.getElementById('guestName').value = data.name;
+            if (data.phone && document.getElementById('guestPhone')) document.getElementById('guestPhone').value = data.phone;
+            if (data.mode && typeof setPurchaseMode === 'function') setPurchaseMode(data.mode);
+            if (data.shipping) {
+                const fs = ['Pincode', 'State', 'District', 'City', 'HouseName', 'HouseNum'];
+                const sd = ['pin', 'state', 'dist', 'city', 'building', 'house'];
+                fs.forEach((f, i) => {
+                    const el = document.getElementById('ship' + f);
+                    if (el) el.value = data.shipping[sd[i]] || '';
+                });
+            }
+        }
+    } catch(e) { console.warn('LocalStorage error', e); }
+
+    const fields = ['guestName', 'guestPhone', 'shipPincode', 'shipState', 'shipDistrict', 'shipCity', 'shipHouseName', 'shipHouseNum'];
+    fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', saveGuestDetails);
+    });
+    
+    document.querySelectorAll('.mode-option').forEach(el => {
+        el.addEventListener('click', () => setTimeout(saveGuestDetails, 50));
+    });
+}
+
+// Initialise storage on load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGuestStorage);
+} else {
+    initGuestStorage();
 }
