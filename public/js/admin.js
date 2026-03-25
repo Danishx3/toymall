@@ -435,14 +435,28 @@ async function deleteOffer(id) {
 
 // --- 6. Order Processing ---
 let _bookingSearchQuery = '';
+let _bookingStatusFilter = 'all';
 
-function filterAdminOrders(q) {
-    _bookingSearchQuery = (q || '').trim().toLowerCase();
+function filterAdminOrders() {
+    _bookingSearchQuery = (document.getElementById('orderSearchInput')?.value || '').trim().toLowerCase();
+    _bookingStatusFilter = document.getElementById('orderStatusFilter')?.value || 'all';
     renderAdminBookings();
 }
 
 function renderAdminBookings() {
     let list = allBookings;
+
+    // First Filter by Status
+    if (_bookingStatusFilter !== 'all') {
+        if (_bookingStatusFilter === 'paid') {
+            // Show orders marked as paid but not yet finished
+            list = list.filter(b => b.paymentStatus === 'paid' && b.status !== 'finished' && b.status !== 'cancelled');
+        } else {
+            list = list.filter(b => b.status === _bookingStatusFilter);
+        }
+    }
+
+    // Then Filter by Search
     if (_bookingSearchQuery) {
         list = list.filter(b =>
             (b.orderId || b.id).toLowerCase().includes(_bookingSearchQuery) ||
@@ -496,22 +510,31 @@ function renderAdminBookings() {
                         <button class="action-btn edit-btn" style="background: #15803d; color: #fff;" onclick="processOrder('${b.id}', 'accepted')">Accept Order</button>
                         <button class="action-btn delete-btn" onclick="processOrder('${b.id}', 'rejected')">Reject Order</button>
                     ` : (b.status === 'rejected' || b.status === 'cancelled') ? `
-                        <span style="color: #ef4444; font-weight: 800;">${b.status === 'cancelled' ? 'CANCELLED' : 'CLOSED'}</span>
-` : `
-                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            ${b.purchaseMode === 'delivery' ? `
-                                <select onchange="updateBookingStatus('${b.id}', this.value)" style="padding: 0.5rem; border-radius: 8px; font-weight: 700; border: 1px solid #ddd; flex: 1;">
-                                    <option value="">Update Status...</option>
-                                    <option value="packing">📦 Packing</option>
-                                    <option value="shipped">🚚 Shipped</option>
-                                    <option value="delivered">🎁 Delivered</option>
-                                </select>
-                             ` : `<span style="font-weight: 700; color: #15803d;">READY FOR VISIT</span>`}
+                        <span style="color: #ef4444; font-weight: 800; text-align: center; display: block; border: 2px solid #fee2e2; padding: 0.5rem; border-radius: 8px;">${b.status === 'cancelled' ? 'CANCELLED' : 'CLOSED'}</span>
+                    ` : b.status === 'finished' ? `
+                        <span style="color: #10b981; font-weight: 800; font-size: 1.1rem; padding: 0.5rem; text-align: center; border: 2px solid #10b981; border-radius: 8px; background: #ecfdf5; display: block;">FINISHED 🎉</span>
+                        <div style="text-align: center; margin-top: 0.5rem; font-weight: 700; color: #047857;">Paid ✅</div>
+                    ` : `
+                        <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+                            ${b.paymentStatus === 'paid' ? `
+                                <div style="display: flex; gap: 0.4rem; align-items: stretch;">
+                                    <div style="font-weight: 800; color: #15803d; flex: 1; display:flex; align-items:center; justify-content:center; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px;">PAID ✅</div>
+                                    <button class="action-btn" style="background: #fff; color: #ef4444; padding: 0.4rem; font-size: 0.75rem; border: 1px solid #f87171;" onclick="updatePaymentStatus('${b.id}', 'unpaid')">Undo</button>
+                                </div>
+                                <button class="action-btn" style="background: #10b981; color: #fff; margin-top: 0.2rem; border: 2px solid #047857; text-transform: uppercase; font-weight: 800;" onclick="processOrder('${b.id}', 'finished')">Finish Order 📦</button>
+                            ` : `
+                                <button class="action-btn" style="background: #3b82f6; color: #fff; box-shadow: 0 4px 0 #2563eb;" onclick="updatePaymentStatus('${b.id}', 'paid')">Mark as Paid 💰</button>
+                            `}
                             
-                            <input type="date" id="date-${b.id}" onchange="updateDeliveryDate('${b.id}', this.value)" style="padding: 0.4rem; border-radius: 8px; border: 1px solid #ddd; font-size: 0.8rem;" title="Set Delivery Date">
+                            <hr style="border: 0; border-top: 1px dashed #cbd5e1; margin: 0.4rem 0;">
+                            
+                            <input type="date" onchange="updateDeliveryDate('${b.id}', this.value)" style="padding: 0.4rem; border-radius: 8px; border: 1px solid #ddd; font-size: 0.8rem;" title="Set Delivery Date" value="${b.deliveryDate || ''}">
                         </div>
-                        <button class="action-btn delete-btn" onclick="processOrder('${b.id}', 'cancelled')" style="background: #f1f5f9; color: #ef4444; border: 1px solid #fee2e2;">Cancel Order</button>
-                        <button class="action-btn edit-btn" style="background: #25D366; color: #fff;" onclick="window.open('https://wa.me/${b.userPhone}?text=${encodeURIComponent('Hello ' + b.userName + ', regarding your ToyMall order ' + (b.orderId || b.id.substring(0,8)) + '...')}', '_blank')">WhatsApp Client</button>
+                        
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                            <button class="action-btn delete-btn" onclick="processOrder('${b.id}', 'cancelled')" style="background: #fff; color: #ef4444; border: 1px solid #fee2e2; flex: 1; padding: 0.5rem;">Cancel</button>
+                            <button class="action-btn edit-btn" style="background: #25D366; color: #fff; flex: 1; padding: 0.5rem;" onclick="window.open('https://wa.me/${b.userPhone}?text=${encodeURIComponent('Hello ' + b.userName + ', regarding your ToyMall order ' + (b.orderId || b.id.substring(0,8)) + '...')}', '_blank')"><i class="fab fa-whatsapp"></i> Chat</button>
+                        </div>
                     `}
                 </div>
             </td>
@@ -526,7 +549,6 @@ async function processOrder(orderId, newStatus) {
     if (!order) return;
 
     if (newStatus === 'accepted') {
-        // Decrease Quantity ONLY on Acceptance
         for (const item of order.items) {
             const product = allProducts.find(p => p.id === item.id);
             if (product) {
@@ -536,8 +558,7 @@ async function processOrder(orderId, newStatus) {
         }
     }
 
-    if (newStatus === 'cancelled' && order.status === 'accepted') {
-         // Return items to stock if accepted order is cancelled
+    if (newStatus === 'cancelled' && (order.status === 'accepted' || order.status === 'paid' || order.status === 'finished')) {
          for (const item of order.items) {
             const product = allProducts.find(p => p.id === item.id);
             if (product) {
@@ -551,6 +572,10 @@ async function processOrder(orderId, newStatus) {
     await db.ref("bookings/" + orderId).update({ status: newStatus, logs: newLogs });
 }
 
+window.updatePaymentStatus = async function(orderId, val) {
+    await db.ref("bookings/" + orderId).update({ paymentStatus: val });
+}
+
 async function updateBookingStatus(orderId, newStatus) {
     if (!newStatus) return;
     const order = allBookings.find(b => b.id === orderId);
@@ -558,11 +583,9 @@ async function updateBookingStatus(orderId, newStatus) {
     
     const newLogs = [...(order.logs || []), { status: newStatus, date: new Date().toISOString() }];
     await db.ref("bookings/" + orderId).update({ status: newStatus, logs: newLogs });
-    alert(`Status updated to ${newStatus.toUpperCase()}`);
 }
 
 async function updateDeliveryDate(orderId, date) {
     if (!date) return;
     await db.ref("bookings/" + orderId).update({ deliveryDate: date });
-    alert("Delivery date updated!");
 }

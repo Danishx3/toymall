@@ -124,16 +124,25 @@
                 <div class="admin-page-head">
                     <h1>Customer Orders</h1>
                 </div>
-                <!-- Order Search -->
-                <div style="margin-bottom:1.25rem;">
-                    <div style="display:flex;gap:0.75rem;align-items:center;background:#fff;border-radius:14px;padding:0.6rem 1rem;box-shadow:0 2px 12px rgba(0,0,0,0.07);border:1.5px solid #e2e8f0;max-width:460px;">
+                <!-- Order Search & Filter -->
+                <div style="margin-bottom:1.25rem; display: flex; flex-wrap: wrap; gap: 1rem;">
+                    <div style="display:flex;flex: 1;max-width: 500px;min-width: 260px;gap:0.75rem;align-items:center;background:#fff;border-radius:14px;padding:0.6rem 1rem;box-shadow:0 2px 12px rgba(0,0,0,0.07);border:1.5px solid #e2e8f0;">
                         <i class="fas fa-search" style="color:#94a3b8;font-size:1rem;"></i>
                         <input id="orderSearchInput" type="text" placeholder="Search by Order ID (e.g. TM-ABC123) or name…"
                             style="border:none;outline:none;width:100%;font-size:0.95rem;font-weight:600;background:transparent;color:#1e293b;"
-                            oninput="filterAdminOrders(this.value)">
-                        <button onclick="filterAdminOrders('');document.getElementById('orderSearchInput').value='';"
+                            oninput="filterAdminOrders()">
+                        <button onclick="document.getElementById('orderSearchInput').value=''; filterAdminOrders();"
                             style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:0.9rem;" title="Clear"><i class="fas fa-times"></i></button>
                     </div>
+                    
+                    <select id="orderStatusFilter" onchange="filterAdminOrders()" style="padding: 0.6rem 1rem; border-radius: 14px; border: 1.5px solid #e2e8f0; font-weight: 700; color: #334155; outline: none; box-shadow: 0 2px 12px rgba(0,0,0,0.07); background: #fff; cursor: pointer; min-width: 180px;">
+                        <option value="all">All Orders</option>
+                        <option value="pending">🟡 Pending</option>
+                        <option value="accepted">🟢 Accepted</option>
+                        <option value="paid">💰 Paid</option>
+                        <option value="finished">🎉 Finished</option>
+                        <option value="cancelled">🔴 Cancelled</option>
+                    </select>
                 </div>
                 <div class="card">
                     <div class="table-scroll">
