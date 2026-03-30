@@ -26,8 +26,7 @@
     </script>
 
     <!-- Header -->
-    <nav style="position: fixed; width: 100%; padding-bottom: 60px; border-radius: 0 0 30px 30px;"
-        class="navbar navbar-expand-lg sticky-top" id="mainNavbar">
+    <nav class="navbar navbar-expand-lg sticky-top" id="mainNavbar">
         <div class="container-fluid px-2 px-md-4">
 
             <!-- Logo -->
@@ -41,6 +40,8 @@
                 <form class="d-flex align-items-center gap-2 w-100" style="max-width: 800px;" role="search"
                     onsubmit="return false;">
 
+                    <input type="search" id="shopSearch" class="form-control search-input" placeholder="Search toys..."
+                        autocomplete="off" style="width: 200px;">
                     <select id="filterCategory" class="form-select"></select>
                     <select id="filterGender" class="form-select"></select>
                     <select id="filterAge" class="form-select"></select>
@@ -61,28 +62,24 @@
 
                 <!-- Mobile Menu Button -->
                 <button class="btn btn-link d-lg-none p-0" id="mobileMenuBtn">
-                    <i style="color: rgb(71, 2, 2);" class=" fas fa-bars"></i>
+                    <i style="color: var(--text-dark);" class="fas fa-bars"></i>
                 </button>
 
             </div>
         </div>
-        <div class="d-lg" id="mobileSearchStrip"
-            style="width: 90%; position: fixed; bottom: 10px; margin-left: 5%; margin-right: 5%; ">
-            <div class="mobile-search-strip-inner">
-                <div class="mobile-search-strip-input-wrap">
-                    <i class="fas fa-search mobile-search-strip-icon"></i>
-                    <input type="search" id="mobileSearchStripInput" class="mobile-search-strip-input"
-                        placeholder="Search toys…" autocomplete="off" enterkeyhint="search">
-                </div>
-            </div>
-        </div>
-
     </nav>
 
-    <!-- Floating WhatsApp Button -->
-    <a href="https://wa.me/918547575970?text=Hello%20ToyMall%2C%20I%20have%20a%20query!" class="whatsapp-float">
-        <i class="fab fa-whatsapp"></i>
-    </a>
+    <!-- Mobile Floating Search Bar (Bottom-Fixed) -->
+    <div id="mobileSearchStrip" class="d-block d-lg-none"
+        style="position: fixed; bottom: 1.5rem; inset-inline: 0; margin-inline: 1rem; z-index: 1000; width: auto;">
+        <div class="mobile-search-strip-inner">
+            <i class="fas fa-search mobile-search-strip-icon"></i>
+            <input type="search" id="mobileSearchStripInput" class="mobile-search-strip-input"
+                placeholder="Find more toys…" autocomplete="off">
+        </div>
+    </div>
+
+
     <!-- Active Filters Bar -->
     <div id="activeFiltersBar" class="active-filters-bar" style="display:none;">
         <div class="active-filters-inner">
@@ -106,7 +103,8 @@
         </div>
         <div class="mobile-menu-content">
             <!-- Mobile Search -->
-
+            <input type="search" id="mobileShopSearch" class="form-control search-input mb-3"
+                placeholder="Search toys..." autocomplete="off">
             <!-- Mobile Filters -->
             <div class="mobile-filters mb-4">
                 <select id="mobileFilterCategory" class="form-select mb-2"></select>
@@ -155,8 +153,9 @@
         <div class="floating-toy" style="bottom: 15%; left: 15%; animation-delay: 2s;"><i class="fas fa-robot fa-3x"
                 style="color: var(--accent);"></i></div>
 
-        <h1>Playtime Goals <span>Start Here!</span></h1>
-        <p>Step into a world of imagination with our handpicked collection of the most extraordinary toys on the planet.
+        <h1>Exceptional Playthings. <span>Start Here.</span></h1>
+        <p>Step into a curated world of imagination with our handpicked collection of the most extraordinary toys.
+            Designed for the connoisseur, where timeless play meets premium craftsmanship.
         </p>
         <div style="display: flex; gap: 1rem; justify-content: center;">
             <a href="#shop" class="nav-btn primary"
@@ -166,7 +165,6 @@
 
     <!-- Main Content -->
     <div class="container" id="shop">
-        <br><br><br>
         <div id="specialOffersSection" class="special-deals-section" style="display: none;">
             <div class="section-header section-header--special">
                 <h2>Special Deals</h2>
@@ -208,6 +206,39 @@
             </div>
         </div>
     </div>
+
+
+    <!-- Global Footer -->
+    <footer
+        style="background: var(--primary); color: var(--white); padding: 4rem 2rem; margin-top: 5rem; text-align: center;">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <a href="index.html" class="logo"
+                style="color: var(--white); text-decoration: none; font-size: 2rem; margin-bottom: 1.5rem; display: inline-block;">Toy<span
+                    style="color: var(--accent);">Mall</span></a>
+            <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 2.5rem; flex-wrap: wrap;">
+                <a href="index.html"
+                    style="color: var(--border-light); text-decoration: none; text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem; transition: color 0.3s; font-weight: 300;">Shop</a>
+                <a href="about.html"
+                    style="color: var(--border-light); text-decoration: none; text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem; transition: color 0.3s; font-weight: 300;">About
+                    Us</a>
+                <a href="contact.html"
+                    style="color: var(--border-light); text-decoration: none; text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem; transition: color 0.3s; font-weight: 300;">Location
+                    &amp; Hours</a>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 2.5rem;">
+                <a href="#" style="color: var(--white); font-size: 1.5rem; transition: color 0.3s;"
+                    aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" style="color: var(--white); font-size: 1.5rem; transition: color 0.3s;"
+                    aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="https://wa.me/918547575970?text=Hello%20ToyMall%2C%20I%20have%20a%20query!" target="_blank"
+                    style="color: var(--white); font-size: 1.5rem; transition: color 0.3s;" aria-label="WhatsApp"><i
+                        class="fab fa-whatsapp"></i></a>
+            </div>
+            <p style="color: rgba(255,255,255,0.4); font-size: 0.8rem; letter-spacing: 1px; font-weight: 300;">&copy;
+                2026 ToyMall Manjeri. All Rights Reserved.</p>
+        </div>
+        <br><br>
+    </footer>
 
     <!-- Modals Overlay -->
     <div class="modal-overlay" id="modalOverlay">
@@ -315,8 +346,8 @@
 
     <div class="cart-backdrop" id="cartBackdrop" aria-hidden="true"></div>
     <!-- Cart Sidebar (Drawer) -->
-    <aside style="z-index: 1000;" id="cartDrawer" class="cart-drawer-panel" aria-label="Shopping basket">
-        <br><br><br><br>
+    <aside id="cartDrawer" class="cart-drawer-panel" aria-label="Shopping basket">
+
         <div class="cart-drawer-header">
             <h3 class="cart-drawer-title"><span class="cart-drawer-emoji" aria-hidden="true">🧺</span> Your Basket</h3>
             <button type="button" class="cart-drawer-close" id="closeCart" aria-label="Close basket"><i
@@ -336,7 +367,8 @@
                 <p class="cart-section-label">Your Details</p>
                 <div class="address-details" style="grid-template-columns:1fr;">
                     <input type="text" id="guestName" placeholder="Your Name *" autocomplete="name">
-                    <input type="tel" id="guestPhone" placeholder="WhatsApp Number *" inputmode="numeric" autocomplete="tel">
+                    <input type="tel" id="guestPhone" placeholder="WhatsApp Number *" inputmode="numeric"
+                        autocomplete="tel">
                 </div>
 
                 <p class="cart-section-label" style="margin-top:1rem;">How would you like to buy?</p>
@@ -369,7 +401,6 @@
                 </button>
             </div>
         </div>
-
         <!-- Firebase SDKs -->
         <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
         <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
