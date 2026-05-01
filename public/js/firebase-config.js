@@ -17,8 +17,6 @@ if (!firebase.apps.length) {
 const db = firebase.database();
 const auth = firebase.auth();
 
-// ImgBB API Key - Move to secrets.js
 const IMGBB_API_KEY = (typeof SECRETS !== 'undefined') ? SECRETS.IMGBB_API_KEY : "fc2a11d6d841cc2f84e6d2009864f9aa";
 
-// WhatsApp Config - Move to secrets.js
 const WHATSAPP_NUMBER = (typeof SECRETS !== 'undefined') ? SECRETS.WHATSAPP_NUMBER : "918547575970";

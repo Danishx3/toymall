@@ -1101,7 +1101,9 @@ function setupEventListeners() {
 
     whatsappBtn.onclick = async () => {
         const customerName = (document.getElementById('guestName')?.value || '').trim();
+        const countryCode = (document.getElementById('guestCountryCode')?.value || '+91').trim();
         const customerPhone = (document.getElementById('guestPhone')?.value || '').trim();
+        const fullPhone = customerPhone ? countryCode + " " + customerPhone : "";
 
         if (!customerName) { alert('Please enter your name!'); return; }
         if (!customerPhone) { alert('Please enter your WhatsApp number!'); return; }
@@ -1132,7 +1134,7 @@ function setupEventListeners() {
         const orderData = {
             orderId,
             userName: customerName,
-            userPhone: customerPhone,
+            userPhone: fullPhone,
             purchaseMode,
             address,
             detailedAddress,
@@ -1152,7 +1154,7 @@ function setupEventListeners() {
 `🛒 *New ToyMall Order*
 📦 Order ID: *${orderId}*
 👤 Name: ${customerName}
-📞 Phone: ${customerPhone}
+📞 Phone: ${fullPhone}
 ${purchaseMode === 'delivery' ? '📍 Address: ' + address : '🏪 Shop Visit'}
 
 ${itemLines}
@@ -1415,6 +1417,7 @@ function closeCart() {
 function saveGuestDetails() {
     const data = {
         name: document.getElementById('guestName')?.value || '',
+        countryCode: document.getElementById('guestCountryCode')?.value || '+91',
         phone: document.getElementById('guestPhone')?.value || '',
         mode: typeof purchaseMode !== 'undefined' ? purchaseMode : 'delivery',
         shipping: {
@@ -1435,6 +1438,7 @@ function initGuestStorage() {
         if (stored) {
             const data = JSON.parse(stored);
             if (data.name && document.getElementById('guestName')) document.getElementById('guestName').value = data.name;
+            if (data.countryCode && document.getElementById('guestCountryCode')) document.getElementById('guestCountryCode').value = data.countryCode;
             if (data.phone && document.getElementById('guestPhone')) document.getElementById('guestPhone').value = data.phone;
             if (data.mode && typeof setPurchaseMode === 'function') setPurchaseMode(data.mode);
             if (data.shipping) {
@@ -1448,7 +1452,7 @@ function initGuestStorage() {
         }
     } catch(e) { console.warn('LocalStorage error', e); }
 
-    const fields = ['guestName', 'guestPhone', 'shipPincode', 'shipState', 'shipDistrict', 'shipCity', 'shipHouseName', 'shipHouseNum'];
+    const fields = ['guestName', 'guestCountryCode', 'guestPhone', 'shipPincode', 'shipState', 'shipDistrict', 'shipCity', 'shipHouseName', 'shipHouseNum'];
     fields.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', saveGuestDetails);
